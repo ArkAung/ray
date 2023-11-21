@@ -59,6 +59,21 @@ steps:
     depends_on: servepython311build
     job_env: forge
 
+  - label: ":ray-serve: serve: window tests"
+    parallelism: 2
+    tags: 
+      - serve
+      - python
+    instance_type: windows
+    commands:
+      - powershell ci/pipeline/fix-windows-container-networking.ps1
+      - powershell ci/pipeline/fix-windows-bazel.ps1
+      - bazel run //ci/ray_ci:test_in_docker -- //python/ray/serve/... //python/ray/tests/...  serve 
+        --build-type windows
+        --except-tags no_window,post_wheel_build,gpu,worker-container,xcommit
+        --workers "$${BUILDKITE_PARALLEL_JOB_COUNT}" --worker-id "$${BUILDKITE_PARALLEL_JOB}" --parallelism-per-worker 3
+    job_env: WINDOWS
+
   - label: ":ray-serve: serve: release tests"
     tags:
       - serve
@@ -189,11 +204,11 @@ steps:
       PYTHON_VERSION: "3.8"
       EXTRA_DEPENDENCY: "{{matrix}}"
 
-  - label: ":windows: serve tests"
-    tags:
-      - serve
-    job_env: WINDOWS
-    instance_type: windows
-    parallelism: 5
-    commands:
-      - bash /c/workdir/.buildkite/windows_ci.sh test_serve
+  # - label: ":windows: serve tests"
+  #   tags:
+  #     - serve
+  #   job_env: WINDOWS
+  #   instance_type: windows
+  #   parallelism: 5
+  #   commands:
+  #     - bash /c/workdir/.buildkite/windows_ci.sh test_serve

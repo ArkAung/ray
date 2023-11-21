@@ -130,6 +130,8 @@ bazel_workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY", "")
             "tsan-clang",
             # java build types
             "java",
+            # window build types
+            "windows",
         ]
     ),
     default="optimized",
@@ -154,7 +156,7 @@ def main(
     if not bazel_workspace_dir:
         raise Exception("Please use `bazelisk run //ci/ray_ci`")
     os.chdir(bazel_workspace_dir)
-    docker_login(_DOCKER_ECR_REPO.split("/")[0])
+    # docker_login(_DOCKER_ECR_REPO.split("/")[0])
 
     if build_type == "wheel" or build_type == "wheel-aarch64":
         # for wheel testing, we first build the wheel and then use it for running tests

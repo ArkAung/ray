@@ -63,11 +63,14 @@ class Container:
     def install_ray(self, build_type: Optional[str] = None) -> None:
         env = os.environ.copy()
         env["DOCKER_BUILDKIT"] = "1"
+        tests_dockerfile = "tests.env.Dockerfile"
+        if build_type == "windows":
+            tests_dockerfile = "tests.windows.env.Dockerfile"
         subprocess.check_call(
             [
                 "docker",
                 "build",
-                "--pull",
+                #                "--pull",
                 "--build-arg",
                 f"BASE_IMAGE={self._get_docker_image()}",
                 "--build-arg",
@@ -75,7 +78,7 @@ class Container:
                 "-t",
                 self._get_docker_image(),
                 "-f",
-                "/ray/ci/ray_ci/tests.env.Dockerfile",
+                f"/ray/ci/ray_ci/{tests_dockerfile}",
                 "/ray",
             ],
             env=env,
