@@ -51,11 +51,11 @@ RUN sudo apt-get update -y && sudo apt-get upgrade -y \
         gnupg; fi) \
     && if [[ "${PYTHON_VERSION}" = "3.11" || "${PYTHON_VERSION}" =~ ^3\.11\. ]]; then \
             MINICONDA_VERSION="py311_23.10.0-1"; \
-            LIBGCC=(libgcc-ng); \
+            LIBFFI=(-c conda-forge libffi=3.4.2); \
         else \
             MINICONDA_VERSION="py37_23.1.0-1"; \
             # TODO (can): Remove libffi=3.3 once #33299 is resolved
-            LIBGCC=(libgcc-ng libffi=3.3); \
+            LIBFFI=(libffi=3.3); \
         fi \
     && wget --quiet \
         "https://repo.anaconda.com/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-${HOSTTYPE}.sh" \
@@ -64,7 +64,8 @@ RUN sudo apt-get update -y && sudo apt-get upgrade -y \
     && $HOME/anaconda3/bin/conda init \ 
     && echo 'export PATH=$HOME/anaconda3/bin:$PATH' >> /home/ray/.bashrc \
     && rm /tmp/miniconda.sh  \
-    && $HOME/anaconda3/bin/conda install -y "${LIBGCC[@]}" python=$PYTHON_VERSION \
+    && $HOME/anaconda3/bin/conda install -y libgcc-ng python=$PYTHON_VERSION \
+    && $HOME/anaconda3/bin/conda install -y "${LIBGCC[@]}" \
     && $HOME/anaconda3/bin/conda clean -y --all \
     && $HOME/anaconda3/bin/pip install --no-cache-dir \
         flatbuffers \
